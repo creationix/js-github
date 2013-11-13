@@ -1,4 +1,4 @@
-var bops = require('bops');
+var from = require('bops/from.js');
 
 module.exports = {
   commit: decodeCommit,
@@ -8,9 +8,14 @@ module.exports = {
 };
 
 function decodeCommit(result) {
+  var typeCache = this.typeCache;
+  typeCache[result.tree.sha] = "tree";
   return {
     tree: result.tree.sha,
-    parents: result.parents.map(pickSha),
+    parents: result.parents.map(function (object) {
+      typeCache[object.sha] = "commit";
+      return object.sha;
+    }),
     author: pickPerson(result.author),
     committer: pickPerson(result.committer),
     message: result.message
@@ -18,6 +23,7 @@ function decodeCommit(result) {
 }
 
 function decodeTag(result) {
+  this.typeCache[result.object.sha] = result.object.type;
   return {
     object: result.object.sha,
     type: result.object.type,
@@ -41,10 +47,10 @@ function decodeTree(result) {
 
 function decodeBlob(result) {
   if (result.encoding === 'base64') {
-    return bops.from(result.content.replace(/\n/g, ''), 'base64');
+    return from(result.content.replace(/\n/g, ''), 'base64');
   }
   if (result.encoding === 'utf-8') {
-    return bops.from(result.content, 'utf8');
+    return from(result.content, 'utf8');
   }
   throw new Error("Unknown blob encoding: " + result.encoding);
 }
@@ -55,8 +61,4 @@ function pickPerson(person) {
     email: person.email,
     date: new Date(person.date)
   };
-}
-
-function pickSha(object) {
-  return object.sha;
 }

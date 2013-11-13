@@ -40,16 +40,14 @@ function load(hash, callback) {
 function save(object, callback) {
   if (!callback) return save.bind(this, object);
   var request;
-  try {
-    request = encoders[object.type](object.body);
-  }
-  catch (err) {
-    return callback(err);
-  }
+  try { request = encoders[object.type](object.body); }
+  catch (err) { return callback(err); }
+  var typeCache = this.typeCache;
   return this.apiPost("/repos/:root/git/" + object.type + "s", request, onWrite);
 
   function onWrite(err, result) {
     if (err) return callback(err);
+    typeCache[result.sha] = object.type;
     return callback(null, result.sha);
   }
 }
@@ -87,7 +85,7 @@ function saveAs(type, body, callback) {
 
 function remove(hash, callback) {
   if (!callback) return remove.bind(this, hash);
-  throw "TODO: Implement repo.remove()";
+  // TODO: should we throw an error or a warning here?
+  // This operation is not supported by github.
+  callback();
 }
-
-

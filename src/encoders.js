@@ -1,4 +1,6 @@
-var bops = require('bops');
+// var bops = require('bops');
+var isBinary = require('bops/is.js');
+var toString = require('bops/to.js');
 
 var modeToType = {
   "40000": "tree",
@@ -65,8 +67,8 @@ function encodeBlob(blob) {
     content: blob,
     encoding: "utf-8"
   };
-  if (bops.is(blob)) return {
-    content: bops.to(blob, "base64"),
+  if (isBinary(blob)) return {
+    content: toString(blob, "base64"),
     encoding: "base64"
   };
   throw new TypeError("Invalid blob type, must be binary of string");
