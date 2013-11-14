@@ -58,7 +58,7 @@ function onRefs(err, refs) {
 }
 
 function loadAny(repo, hash) {
-  var type = repo.typeCache[hash];
+  var type = repo.typeCache[hash] || "commit";
   if (type === "commit") return repo.logWalk(hash, repo.onCommitStream);
   if (type === "tag") {
     return repo.loadAs("tag", hash, function (err, tag) {
