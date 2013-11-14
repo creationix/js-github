@@ -1,7 +1,6 @@
 var http = require('http');
 var send = require('send');
 var fs = require('fs');
-var pathJoin = require('path').resolve;
 var urlParse = require('url').parse;
 var compile = require('js-linker');
 
