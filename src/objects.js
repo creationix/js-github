@@ -6,6 +6,7 @@ var encoders = require('./encoders.js');
 module.exports = function (repo) {
 
   repo.typeCache = {};
+  repo.bodyCache = {};
 
   // Add Object store capability to the system
   repo.load = load;     // (hash-ish) -> object
@@ -60,12 +61,15 @@ function loadAs(type, hash, callback) {
   function onHash(err, result) {
     if (err) return callback(err);
     hash = result;
+    if (hash in repo.bodyCache) {
+      return callback(null, repo.bodyCache[hash], hash);
+    }
     repo.apiGet("/repos/:root/git/" + type + "s/" + hash, onValue);
   }
 
   function onValue(err, result) {
     if (err) return callback(err);
-    repo.typeCache[result.sha] = type;
+    repo.typeCache[hash] = type;
     var body;
     try {
       body = decoders[type].call(repo, result);
@@ -73,6 +77,7 @@ function loadAs(type, hash, callback) {
     catch (err) {
       return callback(err);
     }
+    repo.bodyCache[hash] = body;
     return callback(null, body, hash);
   }
 }
