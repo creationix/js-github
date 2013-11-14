@@ -14,10 +14,16 @@ document.body.textContent = "";
 document.body.appendChild(domBuilder([
   ["nav", "Repos",["ul$0"]],
   ["nav", "Refs", ["ul$1"]],
-  ["nav", "Commits", ["ul$2"]],
-  ["nav", "Files", ["ul$3"]],
+  ["nav$n1", "Commits", ["ul$2"]],
+  ["nav$n2", "Files", ["ul$3"]],
   [".body$4"]
 ], $));
+
+window.addEventListener("resize", function () {
+  var evt = new window.Event('scroll');
+  $.n1.dispatchEvent(evt);
+  $.n2.dispatchEvent(evt);
+}, false);
 
 renderRepos([
   jsGithub("creationix/conquest", accessToken),
