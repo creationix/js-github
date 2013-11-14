@@ -3,6 +3,7 @@ var xhr = require('./xhr.js');
 module.exports = function (root, accessToken) {
   var request = xhr(root, accessToken);
   var repo = {
+    name: root,
     apiGet: request.bind(null, "GET"),
     apiPost: request.bind(null, "POST"),
     apiPatch: request.bind(null, "PATCH"),
