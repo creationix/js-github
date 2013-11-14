@@ -12,7 +12,6 @@ function compileHtml(loader, index, callback) {
   var matchRegExp = /<script[^>]+src="([^".]+.js)\?bundle=true"[^>]*><\/script>/;
   loader(index, false, function (err, html) {
     if (html === undefined) return callback(err);
-    console.log(html);
     var targets = html.match(findRegExp).map(function (script) {
       return {
         original: script,
