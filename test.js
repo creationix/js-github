@@ -12,10 +12,10 @@ if (!accessToken) {
 var $ = {};
 document.body.textContent = "";
 document.body.appendChild(domBuilder([
-  ["nav", ["ul$0"]],
-  ["nav", ["ul$1"]],
-  ["nav", ["ul$2"]],
-  ["nav", ["ul$3"]],
+  ["nav", "Repos",["ul$0"]],
+  ["nav", "Refs", ["ul$1"]],
+  ["nav", "Commits", ["ul$2"]],
+  ["nav", "Files", ["ul$3"]],
   [".body$4"]
 ], $));
 
@@ -53,9 +53,36 @@ function onRefs(err, refs) {
   fixedList(1, names, function (name) {
     return ["li.row", {title: refs[name]}, name];
   }, function (name) {
-    repo.logWalk(refs[name], repo.onCommitStream);
+    loadAny(repo, refs[name]);
   });
 }
+
+function loadAny(repo, hash) {
+  var type = repo.typeCache[hash];
+  if (type === "commit") return repo.logWalk(hash, repo.onCommitStream);
+  if (type === "tag") {
+    return repo.loadAs("tag", hash, function (err, tag) {
+      if (err) throw err;
+      console.log("Annotated tag", tag);
+      loadAny(repo, tag.object);
+    });
+  }
+  if (type === "tree") {
+    clear(2);
+    return repo.treeWalk(hash, onFileStream);
+  }
+  if (type === "blob") {
+    clear(2);
+    return repo.loadAs("blob", hash, function (err, blob) {
+      if (err) throw err;
+      onFile({
+        name: "",
+        body: blob
+      });
+    });
+  }
+}
+
 
 function onCommitStream(err, commitStream) {
   if (err) throw err;
@@ -80,23 +107,25 @@ function onFileStream(err, fileStream) {
   dynamicList(3, fileStream, function (entry) {
     if (entry.type !== "blob") return;
     return ["li.row", {title: entry.hash}, entry.path ];
-  }, function onClick(entry) {
-    clear(4);
-    var mime = getMime(entry.name);
-    if (/^image\//.test(mime)) return showBinary(entry, mime);
-    var isText = true;
-    var text = "";
-    for (var i = 0, l = entry.body.length; i < l; i++) {
-      var byte = entry.body[i];
-      if (entry.body[i] & 0x80) {
-        isText = false;
-        break;
-      }
-      text += String.fromCharCode(byte);
+  }, onFile);
+}
+
+function onFile(entry) {
+  clear(4);
+  var mime = getMime(entry.name);
+  if (/^image\//.test(mime)) return showBinary(entry, mime);
+  var isText = true;
+  var text = "";
+  for (var i = 0, l = entry.body.length; i < l; i++) {
+    var byte = entry.body[i];
+    if (entry.body[i] & 0x80) {
+      isText = false;
+      break;
     }
-    if (isText) return showText(entry, text);
-    showBinary(entry, mime);
-  });
+    text += String.fromCharCode(byte);
+  }
+  if (isText) return showText(entry, text);
+  showBinary(entry, mime);
 }
 
 function clear(index) {
