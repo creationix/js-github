@@ -4,7 +4,7 @@ var getMime = require('simple-mime')('application/octet-stream');
 
 var accessToken = localStorage.getItem("accessToken");
 if (!accessToken) {
-  accessToken = prompt("Enter access token");
+  accessToken = prompt("Enter personal access token from https://github.com/settings/applications");
   if (!accessToken) throw new Error("Aborted by user");
   localStorage.setItem("accessToken", accessToken);
 }
