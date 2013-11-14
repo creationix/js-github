@@ -203,7 +203,10 @@ function dynamicList(index, stream, formatter, onclick) {
     if (err) throw err;
     if (!item) return;
     var json = formatter(item);
-    if (!json) return stream.read(onRead);
+    if (!json) {
+      loading = true;
+      return stream.read(onRead);
+    }
     var child = domBuilder(json);
     child.onclick = function (evt) {
       evt.preventDefault();
