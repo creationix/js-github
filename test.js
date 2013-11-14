@@ -39,7 +39,9 @@ function renderRepos(repos) {
     return ["li.row", repo.name];
   }, function (repo) {
     repo.listRefs("", repo.onRefs);
-  });
+  }, function (root) {
+    return jsGithub(root, accessToken);
+  }, "user/project");
 }
 
 function onRefs(err, refs) {
@@ -110,16 +112,32 @@ function showText(entry, text) {
 function showBinary(entry, mime) {
   var blob = new Blob([entry.body], {type: mime});
   var url = window.URL.createObjectURL(blob);
-  $.body.appendChild(domBuilder(
+  $[4].appendChild(domBuilder(
     ["img", {src:url}]
   ));
 }
 
-function fixedList(index, list, formatter, onclick) {
+function fixedList(index, list, formatter, onclick, onadd, placeholder) {
   var selected = null;
+  var last;
   var ul = $[index];
   clear(index);
-  list.forEach(function (item) {
+  list.forEach(onItem);
+  if (onadd) {
+    last = domBuilder(["form",
+      {
+        onsubmit: function (evt) {
+          evt.preventDefault();
+          evt.stopPropagation();
+          var item = onadd(this.root.value);
+          this.root.value = "";
+          onItem(item);
+        }
+      }, ["input", {name: "root", placeholder: placeholder}]
+    ]);
+    ul.appendChild(last);
+  }
+  function onItem(item) {
     var child = domBuilder(formatter(item));
     child.onclick = function (evt) {
       evt.preventDefault();
@@ -129,8 +147,9 @@ function fixedList(index, list, formatter, onclick) {
       selected.classList.add("selected");
       onclick(item);
     };
-    ul.appendChild(child);
-  });
+    if (last) ul.insertBefore(child, last);
+    else ul.appendChild(child);
+  }
 }
 
 function dynamicList(index, stream, formatter, onclick) {
