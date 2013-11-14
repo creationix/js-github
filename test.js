@@ -10,12 +10,13 @@ if (!accessToken) {
 }
 
 var $ = {};
+document.body.textContent = "";
 document.body.appendChild(domBuilder([
-  ["nav.repos", ["ul$repos"]],
-  ["nav.refs", ["ul$refs"]],
-  ["nav.history", ["ul$history"]],
-  ["nav.tree", ["ul$tree"]],
-  [".body$body"]
+  ["nav", ["ul$0"]],
+  ["nav", ["ul$1"]],
+  ["nav", ["ul$2"]],
+  ["nav", ["ul$3"]],
+  [".body$4"]
 ], $));
 
 renderRepos([
@@ -32,22 +33,33 @@ renderRepos([
 ]);
 
 function renderRepos(repos) {
-  fixedList($.repos, repos, function (repo) {
+  fixedList(0, repos, function (repo) {
     repo.onCommitStream = onCommitStream.bind(repo);
-
+    repo.onRefs = onRefs.bind(repo);
     return ["li.row", repo.name];
   }, function (repo) {
-    console.log("repo", repo);
-    repo.logWalk("HEAD", repo.onCommitStream);
+    repo.listRefs("", repo.onRefs);
   });
 }
 
+function onRefs(err, refs) {
+  if (err) throw err;
+  var repo = this;
+  var names = Object.keys(refs);
+  names.unshift("HEAD");
+  refs.HEAD = "HEAD";
+  fixedList(1, names, function (name) {
+    return ["li.row", {title: refs[name]}, name];
+  }, function (name) {
+    repo.logWalk(refs[name], repo.onCommitStream);
+  });
+}
 
 function onCommitStream(err, commitStream) {
   if (err) throw err;
   var repo = this;
 
-  dynamicList($.history, commitStream, function (commit) {
+  dynamicList(2, commitStream, function (commit) {
     var title = commit.hash +
          "\n" + commit.author.name + " - " + commit.author.date.toString() +
          "\n" + commit.message;
@@ -63,11 +75,11 @@ function onCommitStream(err, commitStream) {
 function onFileStream(err, fileStream) {
   if (err) throw err;
 
-  dynamicList($.tree, fileStream, function (entry) {
+  dynamicList(3, fileStream, function (entry) {
     if (entry.type !== "blob") return;
     return ["li.row", {title: entry.hash}, entry.path ];
   }, function onClick(entry) {
-    $.body.textContent = "";
+    clear(4);
     var mime = getMime(entry.name);
     if (/^image\//.test(mime)) return showBinary(entry, mime);
     var isText = true;
@@ -85,8 +97,12 @@ function onFileStream(err, fileStream) {
   });
 }
 
+function clear(index) {
+  while (index <= 4) $[index++].textContent = "";
+}
+
 function showText(entry, text) {
-  $.body.appendChild(domBuilder([
+  $[4].appendChild(domBuilder([
     ["pre", ["textarea.fill", text]]
   ]));
 }
@@ -99,9 +115,10 @@ function showBinary(entry, mime) {
   ));
 }
 
-function fixedList(ul, list, formatter, onclick) {
+function fixedList(index, list, formatter, onclick) {
   var selected = null;
-  ul.textContent = "";
+  var ul = $[index];
+  clear(index);
   list.forEach(function (item) {
     var child = domBuilder(formatter(item));
     child.onclick = function (evt) {
@@ -116,11 +133,12 @@ function fixedList(ul, list, formatter, onclick) {
   });
 }
 
-function dynamicList(ul, stream, formatter, onclick) {
+function dynamicList(index, stream, formatter, onclick) {
+  var ul = $[index];
+  clear(index);
   var container = ul.parentElement;
   var selected = null;
   container.onscroll = onScroll;
-  ul.textContent = "";
   var bottom = 0;
   var height = container.offsetHeight + container.scrollTop;
   var loading = false;

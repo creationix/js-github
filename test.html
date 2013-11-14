@@ -6,7 +6,7 @@
     *, *:before, *:after {
       -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
     }
-    .repos, .refs, .history, .tree, .body, .fill {
+    nav, .body, .fill {
       position: absolute;
       top: 0;
       bottom: 0;
@@ -21,13 +21,13 @@
       height: 100%;
       border: 0;
     }
-    .repos, .refs, .history, .tree {
+    nav {
       width: 200px;
     }
-    .repos { left: 0; }
-    .refs { left: 200px; }
-    .history { left: 400px; }
-    .tree { left: 600px; }
+    nav:nth-child(1) { left: 0; }
+    nav:nth-child(2) { left: 200px; }
+    nav:nth-child(3) { left: 400px; }
+    nav:nth-child(4) { left: 600px; }
     .body {
       left: 800px;
       right: 0;
