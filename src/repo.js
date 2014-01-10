@@ -14,8 +14,6 @@ module.exports = function (root, accessToken) {
 
   require('./refs.js')(repo);
 
-  require('js-git/mixins/walkers.js')(repo);
-
   return repo;
 
 };

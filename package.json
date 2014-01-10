@@ -1,6 +1,6 @@
 {
   "name": "js-github",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "An implementation of the js-git interface that mounts a live github repo.",
   "main": "src/repo.js",
   "browser": {
@@ -23,7 +23,6 @@
     "url": "https://github.com/creationix/js-github/issues"
   },
   "dependencies": {
-    "js-git": "~0.6.0",
     "bops": "~0.1.0"
   },
   "devDependencies": {
