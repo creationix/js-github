@@ -46,7 +46,7 @@ module.exports = function (root, accessToken) {
         console.log(method, url, res.statusCode);
         console.log("Rate limit %s/%s left", res.headers['x-ratelimit-remaining'], res.headers['x-ratelimit-limit']);
         if (res.statusCode >= 400 && res.statusCode < 500) return callback();
-        else if (res.statusCode === 200 && method === "GET") {
+        else if (res.statusCode === 200 && method === "GET" && /\/refs\//.test(url)) {
           cache[url] = {
             body: body,
             etag: res.headers.etag
