@@ -3,12 +3,13 @@ var isBinary = require('bops/is.js');
 var toString = require('bops/to.js');
 
 var modeToType = {
-  "40000": "tree",
+  "040000": "tree",
   "100644": "blob",  // normal file
   "100655": "blob",  // executable file
   "120000": "blob",  // symlink
   "160000": "commit" // gitlink
 };
+
 
 module.exports = {
   commit: encodeCommit,
@@ -54,6 +55,8 @@ function encodeTree(tree) {
 
 function pickTree(entry) {
   var mode = entry.mode.toString(8);
+  // Github likes all modes to be 6 length
+  if (mode.length === 5) mode = "0" + mode;
   return {
     path: entry.name,
     mode: mode,
