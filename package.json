@@ -1,6 +1,6 @@
 {
   "name": "js-github",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "description": "An implementation of the js-git interface that mounts a live github repo.",
   "main": "src/repo.js",
   "browser": {
