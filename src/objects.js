@@ -44,7 +44,8 @@ function save(object, callback) {
   try { request = encoders[object.type](object.body); }
   catch (err) { return callback(err); }
   var typeCache = this.typeCache;
-  return this.apiPost("/repos/:root/git/" + object.type + "s", request, onWrite);
+  var typeName = object.type === "text" ? "blobs" : object.type + "s";
+  return this.apiPost("/repos/:root/git/" + typeName, request, onWrite);
 
   function onWrite(err, result) {
     if (err) return callback(err);
@@ -64,7 +65,8 @@ function loadAs(type, hash, callback) {
     if (hash in repo.bodyCache) {
       return callback(null, repo.bodyCache[hash], hash);
     }
-    repo.apiGet("/repos/:root/git/" + type + "s/" + hash, onValue);
+    var typeName = type === "text" ? "blob" : type;
+    repo.apiGet("/repos/:root/git/" + typeName + "s/" + hash, onValue);
   }
 
   function onValue(err, result) {
