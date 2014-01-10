@@ -1,4 +1,4 @@
-var xhr = require('./xhr.js');
+var xhr = require('./request.js');
 
 module.exports = function (root, accessToken) {
   var request = xhr(root, accessToken);
