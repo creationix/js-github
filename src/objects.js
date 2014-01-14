@@ -6,7 +6,7 @@ var encoders = require('./encoders.js');
 module.exports = function (repo) {
 
   repo.typeCache = {};
-  repo.bodyCache = {};
+  repo.pendingReqs = {};
 
   // Add Object store capability to the system
   repo.load = load;     // (hash-ish) -> object
@@ -62,9 +62,11 @@ function loadAs(type, hash, callback) {
   function onHash(err, result) {
     if (err) return callback(err);
     hash = result;
-    if (hash in repo.bodyCache) {
-      return callback(null, repo.bodyCache[hash], hash);
+    if (hash in repo.pendingReqs) {
+      return repo.pendingReqs[hash].push(callback);
     }
+    repo.pendingReqs[hash] = [callback];
+    callback = flusher(repo.pendingReqs, hash);
     var typeName = type === "text" ? "blob" : type;
     repo.apiGet("/repos/:root/git/" + typeName + "s/" + hash, onValue);
   }
@@ -79,9 +81,18 @@ function loadAs(type, hash, callback) {
     catch (err) {
       return callback(err);
     }
-    repo.bodyCache[hash] = body;
     return callback(null, body, hash);
   }
+}
+
+function flusher(hash, key) {
+  return function () {
+    var list = hash[key];
+    delete hash[key];
+    for (var i = 0, l = list.length; i < l; i++) {
+      list[i].apply(this, arguments);
+    }
+  };
 }
 
 function saveAs(type, body, callback) {
