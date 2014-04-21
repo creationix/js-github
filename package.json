@@ -1,14 +1,8 @@
 {
   "name": "js-github",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "An implementation of the js-git interface that mounts a live github repo.",
   "main": "src/repo.js",
-  "browser": {
-    "./src/request.js": "./src/xhr.js"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "repository": {
     "type": "git",
     "url": "git://github.com/creationix/js-github.git"
@@ -23,12 +17,8 @@
     "url": "https://github.com/creationix/js-github/issues"
   },
   "dependencies": {
-    "bops": "~0.1.0"
-  },
-  "devDependencies": {
-    "send": "~0.1.4",
-    "simple-mime": "0.0.8",
-    "js-linker": "~0.0.2",
-    "dombuilder": "~0.1.2"
+    "bodec": "git://github.com/creationix/bodec.git",
+    "git-sha1": "git://github.com/creationix/git-sha1.git",
+    "js-git": "git://github.com/creationix.js-git.git"
   }
 }

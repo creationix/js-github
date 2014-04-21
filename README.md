@@ -1,4 +1,6 @@
 js-github
 =========
 
-An implementation of the js-git interface that mounts a live github repo.
+A js-git mixin that uses github as the data storage backend.
+
+This allows live mounting of github repos without cloning or pushing.
