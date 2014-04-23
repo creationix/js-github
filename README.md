@@ -1,6 +1,6 @@
-js-github
+JS-GITHUB
 =========
 
-A js-git mixin that uses github as the data storage backend.
+A JS-GIT MIXIN THAT USES GITHUB AS THE DATA STORAGE BACKEND.
 
-This allows live mounting of github repos without cloning or pushing.
+THIS ALLOWS LIVE MOUNTING OF GITHUB REPOS WITHOUT CLONING OR PUSHING.
