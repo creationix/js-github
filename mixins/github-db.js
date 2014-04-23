@@ -29,14 +29,9 @@ var decoders = {
 };
 
 // Precompute hashes for empty blob and empty tree since github won't
-var emptyBlob = sha1(frame({
-  type: "blob",
-  body: binary.create(0)
-}));
-var emptyTree = sha1(frame({
-  type: "tree",
-  body: binary.create(0)
-}));
+var empty = binary.create(0);
+var emptyBlob = sha1(frame({ type: "blob", body: empty }));
+var emptyTree = sha1(frame({ type: "tree", body: empty }));
 
 // Implement the js-git object interface using github APIs
 module.exports = function (repo, root, accessToken) {
@@ -51,6 +46,7 @@ module.exports = function (repo, root, accessToken) {
   repo.hasHash = hasHash;
 
   function loadAs(type, hash, callback) {
+    if (!callback) return loadAs.bind(this, type, hash);
     // Github doesn't like empty trees, but we know them already.
     if (type === "tree" && hash === emptyTree) return callback(null, {}, hash);
     apiRequest("GET", "/repos/:root/git/" + type + "s/" + hash, onValue);
@@ -73,6 +69,7 @@ module.exports = function (repo, root, accessToken) {
   }
 
   function hasHash(type, hash, callback) {
+    if (!callback) return hasHash.bind(this, type, hash);
     apiRequest("GET", "/repos/:root/git/" + type + "s/" + hash, onValue);
 
     function onValue(err, xhr, result) {
@@ -86,6 +83,7 @@ module.exports = function (repo, root, accessToken) {
   }
 
   function saveAs(type, body, callback) {
+    if (!callback) return saveAs.bind(this, type, body);
     var request;
     try {
       request = encoders[type](body);
@@ -114,6 +112,7 @@ module.exports = function (repo, root, accessToken) {
   // Also deltas can be specified by setting entries.base to the hash of a tree
   // in delta mode, entries can be removed by specifying just {path}
   function createTree(entries, callback) {
+    if (!callback) return createTree.bind(this, entries);
     var toDelete = entries.base && entries.filter(function (entry) {
       return !entry.mode;
     }).map(function (entry) {
@@ -218,6 +217,7 @@ module.exports = function (repo, root, accessToken) {
 
 
   function readRef(ref, callback) {
+    if (!callback) return readRef.bind(this, ref);
     if (ref === "HEAD") ref = "refs/heads/master";
     if (!(/^refs\//).test(ref)) {
       return callback(new TypeError("Invalid ref: " + ref));
@@ -235,6 +235,7 @@ module.exports = function (repo, root, accessToken) {
   }
 
   function updateRef(ref, hash, callback) {
+    if (!callback) return updateRef.bind(this, ref, hash);
     if (!(/^refs\//).test(ref)) {
       return callback(new Error("Invalid ref: " + ref));
     }
@@ -360,7 +361,8 @@ function encodeBlob(blob) {
     content: binary.toBase64(blob),
     encoding: "base64"
   };
-  throw new TypeError("Invalid blob type, must be binary of string");
+  console.error({blob:blob})
+  throw new TypeError("Invalid blob type, must be binary or string");
 }
 
 function modeToString(mode) {
