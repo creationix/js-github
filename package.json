@@ -19,6 +19,6 @@
   "dependencies": {
     "bodec": "git://github.com/creationix/bodec.git",
     "git-sha1": "git://github.com/creationix/git-sha1.git",
-    "js-git": "git://github.com/creationix.js-git.git"
+    "js-git": "git://github.com/creationix/js-git.git"
   }
 }
