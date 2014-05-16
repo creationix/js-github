@@ -234,13 +234,14 @@ module.exports = function (repo, root, accessToken) {
     }
   }
 
-  function updateRef(ref, hash, callback) {
+  function updateRef(ref, hash, callback, force) {
     if (!callback) return updateRef.bind(this, ref, hash);
     if (!(/^refs\//).test(ref)) {
       return callback(new Error("Invalid ref: " + ref));
     }
     return apiRequest("PATCH", "/repos/:root/git/" + ref, {
-      sha: hash
+      sha: hash,
+      force: !!force
     }, onResult);
 
     function onResult(err, xhr, result) {
