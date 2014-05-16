@@ -2,7 +2,7 @@
 
 var modes = require('js-git/lib/modes');
 var xhr = require('../lib/xhr');
-var binary = require('bodec');
+var bodec = require('bodec');
 var sha1 = require('git-sha1');
 var frame = require('js-git/lib/object-codec').frame;
 
@@ -29,7 +29,7 @@ var decoders = {
 };
 
 // Precompute hashes for empty blob and empty tree since github won't
-var empty = binary.create(0);
+var empty = bodec.create(0);
 var emptyBlob = sha1(frame({ type: "blob", body: empty }));
 var emptyTree = sha1(frame({ type: "tree", body: empty }));
 
@@ -46,7 +46,7 @@ module.exports = function (repo, root, accessToken) {
   repo.hasHash = hasHash;
 
   function loadAs(type, hash, callback) {
-    if (!callback) return loadAs.bind(this, type, hash);
+    if (!callback) return loadAs.bind(repo, type, hash);
     // Github doesn't like empty trees, but we know them already.
     if (type === "tree" && hash === emptyTree) return callback(null, {}, hash);
     apiRequest("GET", "/repos/:root/git/" + type + "s/" + hash, onValue);
@@ -69,7 +69,7 @@ module.exports = function (repo, root, accessToken) {
   }
 
   function hasHash(type, hash, callback) {
-    if (!callback) return hasHash.bind(this, type, hash);
+    if (!callback) return hasHash.bind(repo, type, hash);
     apiRequest("GET", "/repos/:root/git/" + type + "s/" + hash, onValue);
 
     function onValue(err, xhr, result) {
@@ -83,7 +83,7 @@ module.exports = function (repo, root, accessToken) {
   }
 
   function saveAs(type, body, callback) {
-    if (!callback) return saveAs.bind(this, type, body);
+    if (!callback) return saveAs.bind(repo, type, body);
     var request;
     try {
       request = encoders[type](body);
@@ -112,7 +112,17 @@ module.exports = function (repo, root, accessToken) {
   // Also deltas can be specified by setting entries.base to the hash of a tree
   // in delta mode, entries can be removed by specifying just {path}
   function createTree(entries, callback) {
-    if (!callback) return createTree.bind(this, entries);
+    if (!callback) return createTree.bind(repo, entries);
+    entries.forEach(function (entry) {
+      if (bodec.isBinary(entry.content)) {
+        try {
+          entry.content = bodec.toUnicode(entry.content);
+        }
+        catch (err) {
+          return callback(err);
+        }
+      }
+    });
     var toDelete = entries.base && entries.filter(function (entry) {
       return !entry.mode;
     }).map(function (entry) {
@@ -217,7 +227,7 @@ module.exports = function (repo, root, accessToken) {
 
 
   function readRef(ref, callback) {
-    if (!callback) return readRef.bind(this, ref);
+    if (!callback) return readRef.bind(repo, ref);
     if (ref === "HEAD") ref = "refs/heads/master";
     if (!(/^refs\//).test(ref)) {
       return callback(new TypeError("Invalid ref: " + ref));
@@ -235,7 +245,7 @@ module.exports = function (repo, root, accessToken) {
   }
 
   function updateRef(ref, hash, callback, force) {
-    if (!callback) return updateRef.bind(this, ref, hash);
+    if (!callback) return updateRef.bind(repo, ref, hash);
     if (!(/^refs\//).test(ref)) {
       return callback(new Error("Invalid ref: " + ref));
     }
@@ -355,14 +365,13 @@ function encodeTree(tree) {
 
 function encodeBlob(blob) {
   if (typeof blob === "string") return {
-    content: binary.encodeUtf8(blob),
+    content: bodec.encodeUtf8(blob),
     encoding: "utf-8"
   };
-  if (binary.isBinary(blob)) return {
-    content: binary.toBase64(blob),
+  if (bodec.isBinary(blob)) return {
+    content: bodec.toBase64(blob),
     encoding: "base64"
   };
-  console.error({blob:blob})
   throw new TypeError("Invalid blob type, must be binary or string");
 }
 
@@ -408,10 +417,10 @@ function decodeTree(result) {
 
 function decodeBlob(result) {
   if (result.encoding === 'base64') {
-    return binary.fromBase64(result.content.replace(/\n/g, ''));
+    return bodec.fromBase64(result.content.replace(/\n/g, ''));
   }
   if (result.encoding === 'utf-8') {
-    return binary.fromUtf8(result.content);
+    return bodec.fromUtf8(result.content);
   }
   throw new Error("Unknown blob encoding: " + result.encoding);
 }
