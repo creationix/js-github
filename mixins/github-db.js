@@ -113,23 +113,39 @@ module.exports = function (repo, root, accessToken) {
   // in delta mode, entries can be removed by specifying just {path}
   function createTree(entries, callback) {
     if (!callback) return createTree.bind(repo, entries);
-    entries.forEach(function (entry) {
-      if (bodec.isBinary(entry.content)) {
-        try {
-          entry.content = bodec.toUnicode(entry.content);
-        }
-        catch (err) {
-          return callback(err);
-        }
-      }
-    });
     var toDelete = entries.base && entries.filter(function (entry) {
       return !entry.mode;
     }).map(function (entry) {
       return entry.path;
     });
-    if (toDelete && toDelete.length) return slowUpdateTree(entries, toDelete, callback);
-    return fastUpdateTree(entries, callback);
+    var toCreate = entries.filter(function (entry) {
+      return bodec.isBinary(entry.content);
+    });
+
+    if (!toCreate.length) return next();
+    var done = false;
+    var left = entries.length;
+    toCreate.forEach(function (entry) {
+      repo.saveAs("blob", entry.content, function (err, hash) {
+        if (done) return;
+        if (err) {
+          done = true;
+          return callback(err);
+        }
+        delete entry.content;
+        entry.hash = hash;
+        left--;
+        if (!left) next();
+      });
+    });
+
+    function next(err) {
+      if (err) return callback(err);
+      if (toDelete && toDelete.length) {
+        return slowUpdateTree(entries, toDelete, callback);
+      }
+      return fastUpdateTree(entries, callback);
+    }
   }
 
   function fastUpdateTree(entries, callback) {
