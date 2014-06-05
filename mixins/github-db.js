@@ -5,6 +5,7 @@ var xhr = require('../lib/xhr');
 var bodec = require('bodec');
 var sha1 = require('git-sha1');
 var frame = require('js-git/lib/object-codec').frame;
+var localZone = -(new Date()).getTimezoneOffset();
 
 var modeToType = {
   "040000": "tree",
@@ -377,7 +378,7 @@ function encodePerson(person) {
   return {
     name: person.name,
     email: person.email,
-    date: (new Date(person.date.seconds * 1000)).toISOString()
+    date: encodeDate(person.date)
   };
 }
 
@@ -480,6 +481,25 @@ function parseDate(string) {
     seconds: date.valueOf() / 1000,
     offset: timezoneOffset
   };
+}
+
+function encodeDate(date) {
+  console.log("DATE", date);
+  var seconds = date.seconds + (date.offset - localZone) * 60;
+  var d = new Date(seconds * 1000);
+  var string = d.toISOString();
+  var hours = (date.offset / 60)|0;
+  var minutes = date.offset % 60;
+  string = string.substring(0, string.lastIndexOf(".")) +
+    (date.offset > 0 ? "-" : "+") +
+    twoDigit(hours) + ":" + twoDigit(minutes);
+  console.log("STRING", string);
+  return string;
+}
+
+function twoDigit(num) {
+  if (num < 10) return "0" + num;
+  return "" + num;
 }
 
 function singleCall(callback) {
