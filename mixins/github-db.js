@@ -491,24 +491,19 @@ function encodeDate(date) {
   string = string.substring(0, string.lastIndexOf(".")) +
     (date.offset > 0 ? "-" : "+") +
     twoDigit(hours) + ":" + twoDigit(minutes);
-  var verify = parseDate(string);
-  if (verify.seconds !== date.seconds ||
-      verify.offset !== date.offset) {
-    throw new Error("Verification failure testing date encoding");
-  }
   return string;
 }
 
 // Run some quick unit tests to make sure date encoding works.
-encodeDate({
-  offset: 300,
-  seconds: 1401938626
+[
+  { offset: 300, seconds: 1401938626 },
+  { offset: 400, seconds: 1401938626 }
+].forEach(function (date) {
+  var verify = parseDate(encodeDate(date));
+  if (verify.seconds !== date.seconds || verify.offset !== date.offset) {
+    throw new Error("Verification failure testing date encoding");
+  }
 });
-encodeDate({
-  offset: 400,
-  seconds: 1401938626
-});
-
 
 function twoDigit(num) {
   if (num < 10) return "0" + num;
