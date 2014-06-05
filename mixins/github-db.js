@@ -70,7 +70,7 @@ module.exports = function (repo, root, accessToken) {
 
   function hasHash(type, hash, callback) {
     if (!callback) return hasHash.bind(repo, type, hash);
-    apiRequest("HEAD", "/repos/:root/git/" + type + "s/" + hash, onValue);
+    apiRequest("GET", "/repos/:root/git/" + type + "s/" + hash, onValue);
 
     function onValue(err, xhr, result) {
       if (err) return callback(err);
