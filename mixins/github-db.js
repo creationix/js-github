@@ -5,7 +5,6 @@ var xhr = require('../lib/xhr');
 var bodec = require('bodec');
 var sha1 = require('git-sha1');
 var frame = require('js-git/lib/object-codec').frame;
-var localZone = -(new Date()).getTimezoneOffset();
 
 var modeToType = {
   "040000": "tree",
@@ -484,8 +483,7 @@ function parseDate(string) {
 }
 
 function encodeDate(date) {
-  console.log("DATE", date);
-  var seconds = date.seconds + (date.offset - localZone) * 60;
+  var seconds = date.seconds - (date.offset) * 60;
   var d = new Date(seconds * 1000);
   var string = d.toISOString();
   var hours = (date.offset / 60)|0;
@@ -493,9 +491,24 @@ function encodeDate(date) {
   string = string.substring(0, string.lastIndexOf(".")) +
     (date.offset > 0 ? "-" : "+") +
     twoDigit(hours) + ":" + twoDigit(minutes);
-  console.log("STRING", string);
+  var verify = parseDate(string);
+  if (verify.seconds !== date.seconds ||
+      verify.offset !== date.offset) {
+    throw new Error("Verification failure testing date encoding");
+  }
   return string;
 }
+
+// Run some quick unit tests to make sure date encoding works.
+encodeDate({
+  offset: 300,
+  seconds: 1401938626
+});
+encodeDate({
+  offset: 400,
+  seconds: 1401938626
+});
+
 
 function twoDigit(num) {
   if (num < 10) return "0" + num;
