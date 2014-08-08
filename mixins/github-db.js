@@ -28,6 +28,8 @@ var decoders = {
   blob: decodeBlob,
 };
 
+var typeCache = {};
+
 // Precompute hashes for empty blob and empty tree since github won't
 var empty = bodec.create(0);
 var emptyBlob = sha1(frame({ type: "blob", body: empty }));
@@ -64,6 +66,7 @@ module.exports = function (repo, root, accessToken) {
         if (fixDate(type, body, hash)) console.log(type + " repaired", hash);
         else console.warn("Unable to repair " + type, hash);
       }
+      typeCache[hash] = type;
       return callback(null, body, hash);
     }
   }
@@ -93,6 +96,7 @@ module.exports = function (repo, root, accessToken) {
     catch (err) {
       return callback(err);
     }
+    typeCache[hash] = type;
     repo.hasHash(type, hash, function (err, has) {
       if (err) return callback(err);
       if (has) return callback(null, hash, body);
