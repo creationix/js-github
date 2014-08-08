@@ -68,8 +68,10 @@ module.exports = function (repo, root, accessToken) {
     }
   }
 
-  function hasHash(type, hash, callback) {
+  function hasHash(hash, callback) {
     if (!callback) return hasHash.bind(repo, type, hash);
+    var type = typeCache[hash];
+    if (!type) return callback();
     apiRequest("GET", "/repos/:root/git/" + type + "s/" + hash, onValue);
 
     function onValue(err, xhr, result) {
