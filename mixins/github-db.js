@@ -74,15 +74,21 @@ module.exports = function (repo, root, accessToken) {
   function hasHash(hash, callback) {
     if (!callback) return hasHash.bind(repo, hash);
     var type = typeCache[hash];
-    if (!type) return callback();
-    apiRequest("GET", "/repos/:root/git/" + type + "s/" + hash, onValue);
+    var types = type ? [type] : ["tag", "commit", "tree", "blob"];
+    start();
+    function start() {
+      type = types.pop();
+      if (!type) return callback(null, false);
+      apiRequest("GET", "/repos/:root/git/" + type + "s/" + hash, onValue);
+    }
 
     function onValue(err, xhr, result) {
       if (err) return callback(err);
       if (xhr.status < 200 || xhr.status >= 500) {
         return callback(new Error("Invalid HTTP response: " + xhr.statusCode + " " + result.message));
       }
-      if (xhr.status >= 300 && xhr.status < 500) return callback(null, false);
+      if (xhr.status >= 300 && xhr.status < 500) return start();
+      typeCache[hash] = type;
       callback(null, true);
     }
   }
