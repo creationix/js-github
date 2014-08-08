@@ -97,7 +97,7 @@ module.exports = function (repo, root, accessToken) {
       return callback(err);
     }
     typeCache[hash] = type;
-    repo.hasHash(type, hash, function (err, has) {
+    repo.hasHash(hash, function (err, has) {
       if (err) return callback(err);
       if (has) return callback(null, hash, body);
 
