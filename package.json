@@ -1,6 +1,6 @@
 {
   "name": "js-github",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "An implementation of the js-git interface that mounts a live github repo.",
   "main": "src/repo.js",
   "repository": {
@@ -17,8 +17,8 @@
     "url": "https://github.com/creationix/js-github/issues"
   },
   "dependencies": {
-    "bodec": "git://github.com/creationix/bodec.git",
-    "git-sha1": "git://github.com/creationix/git-sha1.git",
-    "js-git": "git://github.com/creationix/js-git.git"
+    "bodec": "^0.1.0",
+    "git-sha1": "^0.1.2",
+    "js-git": "^0.7.7"
   }
 }
