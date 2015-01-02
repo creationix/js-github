@@ -42,6 +42,7 @@ module.exports = function (repo, root, accessToken) {
 
   repo.loadAs = loadAs;         // (type, hash) -> value, hash
   repo.saveAs = saveAs;         // (type, value) -> hash, value
+  repo.listRefs = listRefs;     // (filter='') -> [ refs ]
   repo.readRef = readRef;       // (ref) -> hash
   repo.updateRef = updateRef;   // (ref, hash) -> hash
   repo.createTree = createTree; // (entries) -> hash, tree
@@ -282,6 +283,22 @@ module.exports = function (repo, root, accessToken) {
         return callback(new Error("Invalid HTTP response: " + xhr.status + " " + result.message));
       }
       return callback(null, result.object.sha);
+    }
+  }
+
+  function listRefs(filter, callback) {
+    if (!callback) return listRefs.bind(repo, filter);
+    if (!filter) filter = '';
+    return apiRequest("GET", "/repos/:root/git/refs/" + filter, onResult);
+
+    function onResult(err, xhr, result) {
+      if (err) return callback(err);
+      if (xhr.status === 404) return callback();
+      if (xhr.status < 200 || xhr.status >= 300) {
+        return callback(new Error("Invalid HTTP response: " + xhr.status + " " + result.message));
+      }
+
+      callback(null, result.map(function(entry) { return entry.ref }));
     }
   }
 
