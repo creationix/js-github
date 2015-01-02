@@ -35,6 +35,7 @@ var githubToken = "8fe7e5ad65814ea315daad99b6b65f2fd0e4c5aa";
 // Mixin the main library using github to provide the following:
 // - repo.loadAs(type, hash) => value
 // - repo.saveAs(type, value) => hash
+// - repo.listRefs(filter='') => [ refs ]
 // - repo.readRef(ref) => hash
 // - repo.updateRef(ref, hash) => hash
 // - repo.createTree(entries) => hash
