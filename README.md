@@ -38,6 +38,7 @@ var githubToken = "8fe7e5ad65814ea315daad99b6b65f2fd0e4c5aa";
 // - repo.listRefs(filter='') => [ refs ]
 // - repo.readRef(ref) => hash
 // - repo.updateRef(ref, hash) => hash
+// - repo.deleteRef(ref) => null
 // - repo.createTree(entries) => hash
 // - repo.hasHash(hash) => has
 require('js-github/mixins/github-db')(repo, githubName, githubToken);
