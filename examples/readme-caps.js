@@ -69,5 +69,10 @@ run(function* () {
   // Now we can browse to this commit by hash, but it's still not in master.
   // We need to update the ref to point to this new commit.
   console.log("COMMIT", commitHash)
-  yield repo.updateRef("refs/heads/master", commitHash);
+
+  // Save it to a new branch (Or update existing one)
+  var new_hash = yield repo.updateRef("refs/heads/new-branch", commitHash);
+
+  // And delete this new branch:
+  yield repo.deleteRef("refs/heads/new-branch");
 });

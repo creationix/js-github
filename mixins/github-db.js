@@ -45,6 +45,7 @@ module.exports = function (repo, root, accessToken) {
   repo.listRefs = listRefs;     // (filter='') -> [ refs ]
   repo.readRef = readRef;       // (ref) -> hash
   repo.updateRef = updateRef;   // (ref, hash) -> hash
+  repo.deleteRef = deleteRef    // (ref) -> null
   repo.createTree = createTree; // (entries) -> hash, tree
   repo.hasHash = hasHash;
 
@@ -283,6 +284,24 @@ module.exports = function (repo, root, accessToken) {
         return callback(new Error("Invalid HTTP response: " + xhr.status + " " + result.message));
       }
       return callback(null, result.object.sha);
+    }
+  }
+
+  function deleteRef(ref, callback) {
+    if (!callback) return deleteRef.bind(repo, ref);
+    if (ref === "HEAD") ref = "refs/heads/master";
+    if (!(/^refs\//).test(ref)) {
+      return callback(new TypeError("Invalid ref: " + ref));
+    }
+    return apiRequest("DELETE", "/repos/:root/git/" + ref, onRef);
+
+    function onRef(err, xhr, result) {
+      if (err) return callback(err);
+      if (xhr.status === 404) return callback();
+      if (xhr.status < 200 || xhr.status >= 300) {
+        return callback(new Error("Invalid HTTP response: " + xhr.status + " " + result.message));
+      }
+      return callback(null, null);
     }
   }
 
