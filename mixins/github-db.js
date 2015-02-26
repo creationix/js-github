@@ -36,9 +36,9 @@ var emptyBlob = sha1(frame({ type: "blob", body: empty }));
 var emptyTree = sha1(frame({ type: "tree", body: empty }));
 
 // Implement the js-git object interface using github APIs
-module.exports = function (repo, root, accessToken) {
+module.exports = function (repo, root, accessToken, githubHostname) {
 
-  var apiRequest = xhr(root, accessToken);
+  var apiRequest = xhr(root, accessToken, githubHostname);
 
   repo.loadAs = loadAs;         // (type, hash) -> value, hash
   repo.saveAs = saveAs;         // (type, value) -> hash, value
