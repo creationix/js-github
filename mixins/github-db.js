@@ -534,11 +534,13 @@ function encodeDate(date) {
   var seconds = date.seconds - (date.offset) * 60;
   var d = new Date(seconds * 1000);
   var string = d.toISOString();
+  var neg = "+";
+  if (offset <= 0) offset = -offset;
+  else neg = "-";
   var hours = (date.offset / 60)|0;
   var minutes = date.offset % 60;
   string = string.substring(0, string.lastIndexOf(".")) +
-    (date.offset > 0 ? "-" : "+") +
-    twoDigit(hours) + ":" + twoDigit(minutes);
+    neg + twoDigit(hours) + ":" + twoDigit(minutes);
   return string;
 }
 
