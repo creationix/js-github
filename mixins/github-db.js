@@ -307,8 +307,8 @@ module.exports = function (repo, root, accessToken, githubHostname) {
 
   function listRefs(filter, callback) {
     if (!callback) return listRefs.bind(repo, filter);
-    if (!filter) filter = '';
-    return apiRequest("GET", "/repos/:root/git/refs/" + filter, onResult);
+    filter = filter ? '/' + filter : '';
+    return apiRequest("GET", "/repos/:root/git/refs" + filter, onResult);
 
     function onResult(err, xhr, result) {
       if (err) return callback(err);
@@ -535,6 +535,7 @@ function encodeDate(date) {
   var d = new Date(seconds * 1000);
   var string = d.toISOString();
   var neg = "+";
+  var offset = date.offset;
   if (offset <= 0) offset = -offset;
   else neg = "-";
   var hours = (date.offset / 60)|0;
