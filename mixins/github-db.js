@@ -540,6 +540,11 @@ function encodeDate(date) {
   else neg = "-";
   var hours = (date.offset / 60)|0;
   var minutes = date.offset % 60;
+  //Fix #12
+    if (hours <= 0) {
+      hours = -(hours);
+      neg = '+';
+    }
   string = string.substring(0, string.lastIndexOf(".")) +
     neg + twoDigit(hours) + ":" + twoDigit(minutes);
   return string;
