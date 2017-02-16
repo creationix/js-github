@@ -323,6 +323,7 @@ module.exports = function (repo, root, accessToken, githubHostname) {
 
   function updateRef(ref, hash, callback, force) {
     if (!callback) return updateRef.bind(repo, ref, hash);
+    if (ref === "HEAD") ref = "refs/heads/master";
     if (!(/^refs\//).test(ref)) {
       return callback(new Error("Invalid ref: " + ref));
     }
