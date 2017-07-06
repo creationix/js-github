@@ -48,7 +48,8 @@ require('js-github/mixins/github-db')(repo, githubName, githubToken);
 require('js-git/mixins/create-tree')(repo);
 
 // Cache github objects locally in indexeddb
-require('js-git/mixins/add-cache')(repo, require('js-git/mixins/indexed-db'));
+var db = require('js-git/mixins/indexed-db')
+require('js-git/mixins/add-cache')(repo, db);
 
 // Cache everything except blobs over 100 bytes in memory.
 // This makes path-to-hash lookup a sync operation in most cases.
@@ -59,6 +60,11 @@ require('js-git/mixins/read-combiner')(repo);
 
 // Add in value formatting niceties.  Also adds text and array types.
 require('js-git/mixins/formats')(repo);
+
+// Browser only: we need to initialize the indexeddb
+db.init(function(err) {
+  if (err) throw err;
+});
 ```
 
 Note that this backend does not provide `loadRaw` or `saveRaw` and can't be used
