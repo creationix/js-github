@@ -536,7 +536,7 @@ function encodeDate(date) {
   var d = new Date(seconds * 1000);
   var string = d.toISOString();
   var hours = Math.abs(date.offset / 60) | 0;
-  var minutes = date.offset % 60;
+  var minutes = Math.abs(date.offset % 60);
   string = string.substring(0, string.lastIndexOf(".")) +
       (date.offset > 0 ? "-" : "+") +
       twoDigit(hours) + ":" + twoDigit(minutes);
@@ -545,6 +545,7 @@ function encodeDate(date) {
 
 // Run some quick unit tests to make sure date encoding works.
 [
+  { offset: -500, seconds: 1401938626 },
   { offset: 300, seconds: 1401938626 },
   { offset: 400, seconds: 1401938626 }
 ].forEach(function (date) {
