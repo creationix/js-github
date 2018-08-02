@@ -535,24 +535,17 @@ function encodeDate(date) {
   var seconds = date.seconds - (date.offset) * 60;
   var d = new Date(seconds * 1000);
   var string = d.toISOString();
-  var neg = "+";
-  var offset = date.offset;
-  if (offset <= 0) offset = -offset;
-  else neg = "-";
-  var hours = (date.offset / 60)|0;
-  var minutes = date.offset % 60;
-  //Fix #12
-    if (hours <= 0) {
-      hours = -(hours);
-      neg = '+';
-    }
+  var hours = Math.abs(date.offset / 60) | 0;
+  var minutes = Math.abs(date.offset % 60);
   string = string.substring(0, string.lastIndexOf(".")) +
-    neg + twoDigit(hours) + ":" + twoDigit(minutes);
+      (date.offset > 0 ? "-" : "+") +
+      twoDigit(hours) + ":" + twoDigit(minutes);
   return string;
 }
 
 // Run some quick unit tests to make sure date encoding works.
 [
+  { offset: -500, seconds: 1401938626 },
   { offset: 300, seconds: 1401938626 },
   { offset: 400, seconds: 1401938626 }
 ].forEach(function (date) {
